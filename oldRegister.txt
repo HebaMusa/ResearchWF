@@ -1,0 +1,82 @@
+// old working register for workflow:
+
+
+//var executionres = ExecutionResult.Persist(new { Id });
+//builder.StartWith(context => executionres.ne
+// builder.StartWith(context => ExecutionResult.Next()
+
+////v1
+//builder
+//	 .StartWith(context =>
+//	 {
+//		 Console.WriteLine("Workflow started");
+//		 return ExecutionResult.Next();
+//	 })
+
+//	.Then<NewStep>()
+//	.Input(step => step.inputStatus, data => data.ContentCurrentState)
+//	.Input(step => step.inputResearchId, data => data.ResearchId)
+//	//.Output(data => data.NextStates, step => PrintOutput(step.NextStates))
+//	.Then<AcceptedFromEditorManager>()
+//	.Then(context => Console.WriteLine("workflow complete"));
+
+
+
+//builder
+//	.StartWith<NewStep>()
+//		.Input(step => step.currentStatus, data => data.ContentCurrentState)
+//		.Output(data => data.NextStates, data => PrintOutput(data.nextStates));
+
+//.Then<PendingReviewFromEditorManager>()
+//  .Input(step => step.currentStatus, data => data.ContentCurrentState)
+//  .Output(data => data.NextStates, data => PrintOutput(data.StateData.NextStates));
+
+//.Then<UnderReviewFromEditorManager>()
+//.Then<AcceptedFromEditorManager>()
+//.Then<ReturnedToSourceForUpdates>();
+
+//.When(data=>data.NextStates.Contains())
+
+
+
+////v2
+//var unauthorizedBranch = builder.CreateBranch()
+//   .StartWith(context => Console.WriteLine("You are unauthorized"));
+
+
+////shared
+//var ReturnedToSource = builder.CreateBranch()
+//   .StartWith<ReturnedToSourceForUpdates>()
+//   .Output(data => data.outputDecision, data => data.userDecision);
+
+
+////editor manager
+//var editorManagerAcceptBranch = builder.CreateBranch()
+//   .StartWith<AcceptedFromEditorManager>()
+//   .Output(data => data.outputDecision, data => data.userDecision);
+
+//var editorManagerCompleted = builder.CreateBranch()
+//   .StartWith<CompletedFromEditorManager>()
+//   .Output(data => data.outputDecision, data => data.userDecision);
+
+//var editorManagerRejected = builder.CreateBranch()
+//   .StartWith<CompletedFromEditorManager>()
+//   .Output(data => data.outputDecision, data => data.userDecision);
+
+////arbitrators
+//var arbitratorsAcceptBranch = builder.CreateBranch()
+//   .StartWith<AcceptedFromArbitrators>()
+//   .Output(data => data.outputDecision, data => data.userDecision);
+
+//var arbitratorsRejectBranch = builder.CreateBranch()
+//   .StartWith<AcceptedFromArbitrators>()
+//   .Output(data => data.outputDecision, data => data.userDecision);
+
+////supervisor
+//var arbitratorSupervisorAcceptBranch = builder.CreateBranch()
+//   .StartWith<AcceptedFromArbitratorsSupervisor>()
+//   .Output(data => data.outputDecision, data => data.userDecision);
+
+//var arbitratorSupervisorRejectBranch = builder.CreateBranch()
+//   .StartWith<RejectedFromArbitratorsSupervisor>()
+//   .Output(data => data.outputDecision, data => data.userDecision);
