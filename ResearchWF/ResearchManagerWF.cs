@@ -16,7 +16,7 @@ namespace ResearchWF
 
 		public void Build(IWorkflowBuilder<WFState> builder)
 		{
-
+			
 			//shared
 			var ReturnedToSource = builder.CreateBranch()
 			   .StartWith<ReturnedToSourceForUpdates>()
@@ -64,13 +64,16 @@ namespace ResearchWF
 
 			//main
 			var mainBranch = builder
-			.StartWith(context => Console.WriteLine("Workflow started...."))
+			.StartWith<LogMessage>()
+			.Input(x => x.Message, _ => "--- Starting workflow ---")
+			
 			.WaitFor("GetResearchArbitrators", e => e.getArbitratorsEventId, null, data => !string.IsNullOrEmpty(data.researchId))
 					.Output(data => data.arbitrators, step => JsonConvert.DeserializeObject<List<int>>(JsonConvert.SerializeObject(step.EventData)))
 
 			.If(data => data.userRole == (int)RoleName.User)
 			.Do(then => then
-				.Then(context => Console.WriteLine("-- User ---"))
+				.Then<LogMessage>()
+				.Input(x => x.Message, _ => "-- User ---")
 				.Then<NewStep>()
 			)
 
@@ -123,10 +126,10 @@ namespace ResearchWF
 						.Branch((int)UserDecision.Reject, arbitratorSupervisorRejectBranch)
 						.Branch((int)UserDecision.Reject, ReturnedToSource))
 
-				.Then(context => Console.WriteLine("End work flow..."))
+				.Then<LogMessage>()
+				.Input(x => x.Message, _ => "--- Finishing workflow ---")
 
 			);
-
 
 
 			//builder

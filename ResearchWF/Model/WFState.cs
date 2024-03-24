@@ -2,7 +2,7 @@
 
 namespace ResearchWF.Model
 {
-    public class WFState
+    public class WFState : ILogParameters
 	{
 		public string researchId { get; set; }
 		public int userRole { get; set; }

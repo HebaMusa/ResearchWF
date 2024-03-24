@@ -28,7 +28,7 @@ namespace ResearchWF.Steps
 
 			//researchService.SubmitResearch()
 			userDecision = (int)UserDecision.MoveForward;
-			Console.WriteLine("hello from " + nameof(NewStep)  + " this step input data from event result : " + string.Join(",", arbitrators));
+			//Console.WriteLine("hello from " + nameof(NewStep)  + " this step input data from event result : " + string.Join(",", arbitrators));
 
 			return ExecutionResult.Next();
 		}

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ResearchWF;
 using ResearchWF.Enums;
+using ResearchWF.Middleware;
 using ResearchWF.Model;
 using ResearchWF.Services;
 using ResearchWF.Services.Interfaces;
@@ -33,15 +35,20 @@ namespace TestWF
 
 			var arbitratorsIdsForThisResearch = new List<int> {10,122,14,16 };
 			var eventKey = Guid.NewGuid().ToString();
-			var initialData = new WFState() { ContentCurrentState = value , userRole= (int)RoleName.ArbitratorSupervisor, outputDecision = (int)UserDecision.MoveForward, getArbitratorsEventId = eventKey };
+			var initialData = new WFState() { 
+				ContentCurrentState = value , 
+				userRole= (int)RoleName.ArbitratorSupervisor, 
+				outputDecision = (int)UserDecision.MoveForward, 
+				getArbitratorsEventId = eventKey,
+				Description ="---  custom data to be display in log ----"
+			};
 			//var workflowId = controller.StartWorkflow<WFState>("ResearchManagerWF", initialData).Result;
 			//// workflowId = host.StartWorkflow("ResearchManagerWF", 1, initialData).Result;
 
 			////var userId = "10";
-			////host.PublishEvent("GetUserData", workflowId, userId);
+			////host.PublishEvent("GetUserData", workflowId, userId);	
+			
 
-			
-			
 			controller.StartWorkflow<WFState>("ResearchManagerWF", initialData);
 
 			host.PublishEvent("GetResearchArbitrators", eventKey, arbitratorsIdsForThisResearch);
@@ -54,15 +61,37 @@ namespace TestWF
 		{
 			//setup dependency injection
 			IServiceCollection services = new ServiceCollection();
-			services.AddLogging();
+
+			services.AddLogging(cfg =>
+			{
+				cfg.AddConsole(x => x.IncludeScopes = true);
+				cfg.AddDebug();
+			});
+
+			//services.AddLogging();
 			services.AddWorkflow(x => x.UseSqlServer(@"Server=.;Database=DBResearchesWF;User Id=WFUser;Password=P@ssw0rd;TrustServerCertificate=true;", true, true));
 
+
+			// Add step middleware
+			// Note that middleware will get executed in the order in which they were registered
+			services.AddWorkflowStepMiddleware<AddMetadataToLogsMiddleware>();
+
+			// Add some pre workflow middleware
+			// This middleware will run before the workflow starts
+			services.AddWorkflowMiddleware<AddDescriptionWorkflowMiddleware>();
+
+			// Add some post workflow middleware
+			// This middleware will run after the workflow completes
+			services.AddWorkflowMiddleware<PrintWorkflowSummaryMiddleware>();
+
+			services.AddTransient<LogMessage>();
 			services.AddTransient<AcceptedFromArbitrator>();
 			services.AddTransient<AcceptedFromArbitratorSupervisor>();
 			services.AddTransient<AcceptedFromEditorManager>();
 			services.AddTransient<CompletedFromEditorManager>();
 			services.AddTransient<NewStep>();
 			services.AddTransient<PendingReviewFromArbitrator>();
+			services.AddTransient<PendingReviewFromArbitratorSupervisor>();
 			services.AddTransient<PendingReviewFromEditorManager>();
 			services.AddTransient<RejectedFromArbitrator>();
 			services.AddTransient<RejectedFromArbitratorSupervisor>();
